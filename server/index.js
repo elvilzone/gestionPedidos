@@ -36,8 +36,8 @@ app.use('/api/productos', productosRouter)
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true, servicio: 'TortasBO API', version: '1.0.0' }))
 
-// Catch-all: Redirigir cualquier otra ruta al index.html de React (Sintaxis Express 5)
-app.get('(.*)', (req, res) => {
+// Catch-all: Redirigir cualquier otra ruta al index.html de React (Usando RegExp pura)
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'))
 })
 
