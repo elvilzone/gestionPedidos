@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: tortasbo-app
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build && cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: CLAUDE_API_KEY
+        sync: false
+    disk:
+      name: tortasbo-data
+      mountPath: /opt/render/project/src/server/data
+      sizeGB: 1

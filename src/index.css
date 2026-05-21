@@ -1,0 +1,382 @@
+
+@theme {
+  --color-rosa: #D4537E;
+  --color-rosa-claro: #F9D0DF;
+  --color-rosa-oscuro: #B03D65;
+  --color-fondo: #FFF5F8;
+  --color-gris: #F3F4F6;
+  --color-gris-medio: #9CA3AF;
+  --color-texto: #1F2937;
+  --color-rojo: #EF4444;
+  --color-amarillo: #F59E0B;
+  --color-verde: #10B981;
+}
+
+/* Reset y base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #FFF5F8;
+  color: #1F2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Evitar scroll horizontal en móvil */
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* Botón grande táctil */
+.btn-primary {
+  background-color: #D4537E;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, transform 0.1s;
+  min-height: 52px;
+}
+.btn-primary:active {
+  background-color: #B03D65;
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #D4537E;
+  border: 2px solid #D4537E;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  min-height: 52px;
+}
+.btn-secondary:active {
+  background-color: #FFF5F8;
+  transform: scale(0.98);
+}
+
+.btn-danger {
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+}
+
+/* Tarjeta */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #F3E8ED;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Campo de formulario */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+.campo input,
+.campo textarea,
+.campo select {
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: #1F2937;
+  background: white;
+  width: 100%;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.campo input:focus,
+.campo textarea:focus,
+.campo select:focus {
+  outline: none;
+  border-color: #D4537E;
+  box-shadow: 0 0 0 3px #F9D0DF;
+}
+.campo textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Semáforo */
+.semaforo-rojo { border-left: 4px solid #EF4444; }
+.semaforo-amarillo { border-left: 4px solid #F59E0B; }
+.semaforo-verde { border-left: 4px solid #10B981; }
+
+/* Badge de estado */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-rojo { background: #FEE2E2; color: #DC2626; }
+.badge-amarillo { background: #FEF3C7; color: #D97706; }
+.badge-verde { background: #D1FAE5; color: #059669; }
+.badge-rosa { background: #F9D0DF; color: #B03D65; }
+
+/* Header de navegación */
+.nav-header {
+  background: white;
+  border-bottom: 1px solid #F3E8ED;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* FAB - Botón flotante */
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #D4537E;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(212, 83, 126, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 95;
+}
+.fab:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(212, 83, 126, 0.3);
+}
+
+/* Spinner de carga */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #F9D0DF;
+  border-top-color: #D4537E;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Toast / notificación */
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1F2937;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  animation: fadeUp 0.3s ease;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Layout responsivo */
+.app-container {
+  background-color: #F3F4F6; /* Fondo gris exterior en escritorio */
+  min-height: 100vh;
+}
+
+.desktop-nav {
+  display: none;
+  background: white;
+  border-bottom: 1px solid #E5E7EB;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.desktop-nav-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.desktop-nav .logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: #D4537E;
+  text-decoration: none;
+}
+
+.desktop-links {
+  display: flex;
+  gap: 24px;
+}
+
+.desktop-links a {
+  text-decoration: none;
+  color: #6B7280;
+  font-weight: 600;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.desktop-links a.activo, .desktop-links a:hover {
+  color: #D4537E;
+}
+
+.main-content {
+  background-color: #FFF5F8;
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 70px; /* Para el bottom nav en móvil */
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #F3E8ED;
+  display: flex;
+  z-index: 90;
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  gap: 3px;
+  color: #9CA3AF;
+  font-size: 11px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.bottom-nav-item.activo {
+  color: #D4537E;
+}
+
+/* Pantallas grandes (Desktop/Tablet) */
+@media (min-width: 768px) {
+  body {
+    background-color: #F3F4F6;
+  }
+  
+  .desktop-nav {
+    display: block;
+  }
+
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .main-content {
+    max-width: 1000px;
+    margin: 32px auto;
+    min-height: calc(100vh - 128px);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    overflow: hidden; /* Corta bordes redondeados */
+    padding-bottom: 0; /* Sin bottom nav */
+  }
+
+  /* El header móvil dentro de content ya no debe ser sticky full width sino relative o sticky al container */
+  .nav-header {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .fab {
+    position: absolute; /* Relativo a .main-content */
+    bottom: 30px;
+    right: 30px;
+  }
+
+  /* Clases grid específicas para componentes internos */
+  .md-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .md-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .md-col-span-2 {
+    grid-column: span 2;
+  }
+}
