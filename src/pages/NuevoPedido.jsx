@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Loader } from 'lucide-react'
 import { crearPedido, getProductos } from '../lib/api.js'
+import { dbLocal } from '../lib/sync.js'
 import { usePedidoForm } from '../hooks/usePedidoForm.js'
 import { useAnalizadorIA } from '../hooks/useAnalizadorIA.js'
 import PanelIA from '../components/PanelIA.jsx'
 import SelectorFoto from '../components/SelectorFoto.jsx'
 import SelectorProducto from '../components/SelectorProducto.jsx'
+import { reprogramarNotificaciones } from '../lib/notifications.js'
 
 export default function NuevoPedido({ pedidoInicial, esEdicion, onGuardar }) {
   const navigate = useNavigate()
@@ -36,6 +38,12 @@ export default function NuevoPedido({ pedidoInicial, esEdicion, onGuardar }) {
   // ── Productos ─────────────────────────────────────────────────────────────
   const [productosList, setProductosList] = useState([])
   useEffect(() => {
+    // Carga rápida del caché
+    dbLocal.getItem('productos').then(locales => {
+      if (locales && locales.length > 0) setProductosList(locales);
+    }).catch(() => {});
+
+    // Actualización silenciosa desde la red
     getProductos().then(res => setProductosList(res.data)).catch(console.error)
   }, [])
 
@@ -71,6 +79,8 @@ export default function NuevoPedido({ pedidoInicial, esEdicion, onGuardar }) {
         await onGuardar(fd)
       } else {
         await crearPedido(fd)
+        // Reprogramar recordatorios para incluir el nuevo pedido
+        reprogramarNotificaciones().catch(() => {})
         navigate('/')
       }
     } catch (err) {
