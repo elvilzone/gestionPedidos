@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getPedido, actualizarPedido } from '../lib/api.js'
 import NuevoPedido from './NuevoPedido.jsx'
+import { reprogramarNotificaciones } from '../lib/notifications.js'
 
 /**
  * Pantalla de edición — reutiliza el formulario de NuevoPedido
@@ -22,6 +23,7 @@ export default function EditarPedido() {
 
   const handleGuardar = async (formData) => {
     await actualizarPedido(id, formData)
+    reprogramarNotificaciones().catch(() => {})
     navigate(`/pedido/${id}`)
   }
 

@@ -7,6 +7,7 @@ import {
   formatearPrecio, formatearFecha, formatearFechaLarga,
   etiquetaTipo, etiquetaModalidad, formatearNumeroPedido, calcularSemaforo
 } from '../lib/formato.js'
+import { reprogramarNotificaciones } from '../lib/notifications.js'
 
 export default function DetallePedido() {
   const { id } = useParams()
@@ -35,6 +36,7 @@ export default function DetallePedido() {
     setProcesando(true)
     try {
       await marcarEntregado(id)
+      reprogramarNotificaciones().catch(() => {})
       mostrarToast('✓ Pedido marcado como entregado')
       setTimeout(() => navigate('/'), 1500)
     } catch (err) {
@@ -47,6 +49,7 @@ export default function DetallePedido() {
     setProcesando(true)
     try {
       await eliminarPedido(id)
+      reprogramarNotificaciones().catch(() => {})
       navigate('/')
     } catch (err) {
       console.error('Error al eliminar:', err)
@@ -54,33 +57,47 @@ export default function DetallePedido() {
     } finally { setProcesando(false); setConfirmando(null) }
   }
 
-  const enviarWhatsApp = async () => {
-    if (!comprobanteRef.current || !pedido) return
-    mostrarToast('Generando comprobante...')
-    try {
-      const canvas = await html2canvas(comprobanteRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-      const link = document.createElement('a')
-      link.download = `comprobante-${formatearNumeroPedido(pedido.id)}.png`
-      link.href = canvas.toDataURL('image/png')
-      link.click()
+  const enviarWhatsApp = () => {
+    if (!pedido) return
+    
+    const digitos = (pedido.whatsapp || '').replace(/\D/g, '')
+    const numero = digitos.replace(/^(?:591)+/, '')
+    
+    if (!numero || numero.length < 7) {
+      mostrarToast('Este pedido no tiene número de WhatsApp')
+      return
+    }
 
-      const saldo = parseFloat(pedido.precio_total) - parseFloat(pedido.sena_recibida || 0)
-      const texto = encodeURIComponent(
-        `🎂 *TortasBO — Comprobante ${formatearNumeroPedido(pedido.id)}*\n\n` +
-        `👤 ${pedido.nombre_cliente}\n` +
-        `🛒 ${etiquetaTipo(pedido.tipo_producto)}\n` +
-        `📅 Entrega: ${formatearFecha(pedido.fecha_entrega)}\n` +
-        `📦 ${etiquetaModalidad(pedido.modalidad)}\n\n` +
-        `💰 Total: ${formatearPrecio(pedido.precio_total)}\n` +
-        `✅ Seña: ${formatearPrecio(pedido.sena_recibida)}\n` +
-        `⚠️ Saldo: ${formatearPrecio(saldo)}\n\n` +
-        `_Gracias por su confianza_ 🙏`
-      )
-      const digitos = (pedido.whatsapp || '').replace(/\D/g, '')
-      // Quita cualquier cantidad de prefijos '591' repetidos al inicio del número
-      const numero = digitos.replace(/^(?:591)+/, '')
+    const saldo = parseFloat(pedido.precio_total) - parseFloat(pedido.sena_recibida || 0)
+    const lineaSaldo = saldo > 0
+      ? `⚠️ *Saldo pendiente: ${formatearPrecio(saldo)}*`
+      : `✅ *Pedido completamente pagado*`
+
+    const texto = encodeURIComponent(
+      `🎂 *Pabel's Repostería*\n` +
+      `Comprobante ${formatearNumeroPedido(pedido.id)}\n\n` +
+      `👤 *Cliente:* ${pedido.nombre_cliente}\n` +
+      `🛒 *Producto:* ${etiquetaTipo(pedido.tipo_producto)}\n` +
+      `📋 *Descripción:* ${pedido.descripcion}\n` +
+      `📅 *Entrega:* ${formatearFecha(pedido.fecha_entrega)}\n` +
+      `📦 *Modalidad:* ${etiquetaModalidad(pedido.modalidad)}` +
+      (pedido.direccion_entrega ? `\n📍 *Dirección:* ${pedido.direccion_entrega}` : '') +
+      `\n\n💰 *Total:* ${formatearPrecio(pedido.precio_total)}\n` +
+      `✅ *Seña pagada:* ${formatearPrecio(pedido.sena_recibida)}\n` +
+      `${lineaSaldo}\n\n` +
+      `_Gracias por su confianza_ 🙏`
+    )
+
+    mostrarToast('Abriendo WhatsApp...')
+
+    const isNative = window.Capacitor?.isNativePlatform?.()
+    if (isNative) {
+      // En Android nativo: whatsapp:// abre WhatsApp Business si está instalado
+      // _system le dice a Capacitor que lo maneje el sistema operativo, no el WebView
+      window.open(`whatsapp://send?phone=591${numero}&text=${texto}`, '_system')
+    } else {
       window.open(`https://wa.me/591${numero}?text=${texto}`, '_blank')
-    } catch { mostrarToast('Error al generar el comprobante') }
+    }
   }
 
   if (cargando) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><div className="spinner" /></div>
@@ -215,7 +232,7 @@ const ComprobanteOculto = ({ pedido, saldo, ref }) => {
   return (
     <div ref={ref} style={{ position: 'absolute', left: '-9999px', top: 0, width: '390px', background: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
       <div style={{ background: '#D4537E', color: 'white', padding: '24px 20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '26px', fontWeight: '900', margin: '0 0 2px' }}>🎂 TortasBO</p>
+        <p style={{ fontSize: '26px', fontWeight: '900', margin: '0 0 2px' }}>🎂 Pabel's Repostería</p>
         <p style={{ fontSize: '13px', margin: 0, opacity: 0.85 }}>Comprobante de Pedido</p>
       </div>
       <div style={{ padding: '20px' }}>
