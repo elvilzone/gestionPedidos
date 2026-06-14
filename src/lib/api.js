@@ -112,7 +112,7 @@ export const crearPedido = async (formData) => {
 
     // Actualizar caché local: reemplazar entrada temporal si existe, si no agregar
     const locales = await dbLocal.getItem('pedidos_activos') || [];
-    const idx = locales.findIndex(p => p.cliente_id === clienteId || String(p.id).startsWith('temp_'));
+    const idx = locales.findIndex(p => p.cliente_id === clienteId);
     if (idx !== -1) {
       locales[idx] = res.data; // reemplazar temporal con datos reales
     } else {

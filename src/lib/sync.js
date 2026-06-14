@@ -78,7 +78,7 @@ export async function triggerSync() {
           // De lo contrario el pedido "desaparece" cuando getPedidos() trae el id real
           const locales = await dbLocal.getItem('pedidos_activos') || [];
           const idx = locales.findIndex(
-            p => p.cliente_id === item.payload.cliente_id || String(p.id).startsWith('temp_')
+            p => p.cliente_id === item.payload.cliente_id
           );
           if (idx !== -1) {
             locales[idx] = res.data;
