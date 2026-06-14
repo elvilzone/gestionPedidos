@@ -58,7 +58,6 @@ export default function SelectorFoto({ previewFoto, onFotoSeleccionada, onQuitar
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleChange}
         style={{ display: 'none' }}
       />

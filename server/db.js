@@ -41,6 +41,28 @@ db.exec(`
   );
 `)
 
+// Función auxiliar para agregar columnas a tablas existentes
+const addColumn = (table, column, definition) => {
+  try {
+    const info = db.pragma(`table_info(${table})`);
+    const hasCol = info.some(c => c.name === column);
+    if (!hasCol) {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    }
+  } catch(e) {
+    console.error(`Error agregando columna ${column} a ${table}:`, e);
+  }
+};
+
+// Migraciones para sincronización Offline-First
+addColumn('pedidos', 'cliente_id', 'TEXT UNIQUE');
+addColumn('pedidos', 'updated_at', "INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)");
+addColumn('pedidos', 'is_deleted', 'INTEGER NOT NULL DEFAULT 0');
+
+addColumn('productos', 'updated_at', "INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)");
+addColumn('productos', 'is_deleted', 'INTEGER NOT NULL DEFAULT 0');
+
+
 // Insertar productos por defecto si la tabla está vacía
 const count = db.prepare('SELECT COUNT(*) as count FROM productos').get();
 if (count.count === 0) {

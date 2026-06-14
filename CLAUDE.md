@@ -8,9 +8,15 @@ This file instructs AI assistants (Claude, Gemini, GPT, etc.) on the architectur
 
 ## Project Overview
 
-{Replace with your project description}
+**Pabel's Repostería — Gestión de Pedidos** es una aplicación híbrida offline-first para la gestión de pedidos de una repostería artesanal. Funciona como:
+- **PWA web** accesible desde el navegador.
+- **App Android nativa** empaquetada con Capacitor 8.
 
-This project follows **Clean Architecture**, **SOLID principles**, and **feature-first modularization**. All code must adhere to the engineering standards defined in `.ai/rules/`.
+Stack principal: **React 19 + Vite 8 + Capacitor 8 + localforage (IndexedDB) + Express.js + SQLite (Render)**.
+
+Antes de generar cualquier código de UI, leer obligatoriamente: **`.ai/skills/frontend-architect.md`** — contiene reglas críticas de Capacitor, offline-first, WhatsApp, galería y despliegue.
+
+Este proyecto sigue principios **SOLID** y **separación de responsabilidades** adaptados a su arquitectura offline-first pragmática. Todo el código debe cumplir los estándares definidos en `.ai/rules/`.
 
 ---
 
@@ -19,16 +25,30 @@ This project follows **Clean Architecture**, **SOLID principles**, and **feature
 Before generating any code, internalize this architecture:
 
 ```
-[ Presentation ]  ←  only calls use cases, never repositories directly
-       ↓
-[ Application / Use Cases ]  ←  orchestrates domain, never talks to DB directly
-       ↓
-[ Domain / Entities ]  ←  pure business logic, zero framework dependencies
-       ↑
-[ Infrastructure ]  ←  implements interfaces defined in Application layer
+[ UI — React Pages (src/pages/) ]
+        ↓  calls
+[ src/lib/api.js ]  ← intercepta TODAS las llamadas HTTP + lógica offline-first
+        ↓                    ↓
+[ localforage (IndexedDB) ]  [ Render API — https://gestionpedidos-g5sj.onrender.com/api ]
+        ↓
+[ src/lib/sync.js ]  ← al reconectar, sube la cola offline al servidor
 ```
 
-**The dependency rule is inviolable.** Dependencies point inward. Infrastructure depends on Application. Application depends on Domain. Domain depends on nothing.
+> **Decisión de arquitectura**: No se usan Use Cases formales ni Repository interfaces — la capa `api.js` + `sync.js` actúa como la capa de aplicación/infraestructura combinada. Render (SQLite) es la fuente de verdad; localforage es caché temporal.
+
+**Dependency rule**: Las páginas nunca acceden a `localforage` ni a `fetch`/`axios` directamente — siempre pasan por `api.js`.
+
+---
+
+## Project-Specific Rules (MANDATORY)
+
+> Read `.ai/skills/frontend-architect.md` in full before any UI change. Critical rules include:
+- **NEVER** add `capture="environment"` to `<input type="file">` — blocks the gallery.
+- **WhatsApp on Android native** → `window.open('whatsapp://send?phone=...', '_system')`
+- **WhatsApp on web** → `window.open('https://wa.me/...', '_blank')`
+- **Detect native** → `window.Capacitor?.isNativePlatform?.()`
+- **Apostrophes in strings.xml** → escape as `\'` (e.g. `Pabel\'s`)
+- **Install packages** → always use `--legacy-peer-deps --strict-ssl=false`
 
 ---
 
@@ -43,11 +63,26 @@ Before generating any code, internalize this architecture:
 6. Detect potential SRP violations — can each proposed class be described with one sentence?
 
 ### When Writing Code
-1. Write domain layer code with zero framework imports.
-2. Write use cases that accept DTOs and return `Result<T>` — never throw exceptions for domain errors.
-3. Define repository **interfaces** in the application/domain layer — implementations go in infrastructure.
+1. **Frontend (React)**: All API calls go through `src/lib/api.js` — never use `fetch`/`axios` directly in components.
+2. **Error handling in React**: Use `try/catch` + local state (`isError`, `errorMessage`) + user feedback (toast/alert). Never swallow errors silently.
+   ```js
+   // Pattern for async operations in components
+   const [isLoading, setIsLoading] = useState(false);
+   const [hasError, setHasError] = useState(false);
+   try {
+     setIsLoading(true);
+     const result = await api.crearPedido(data);
+     // handle success
+   } catch (error) {
+     setHasError(true);
+     console.error('Error al crear pedido:', error);
+   } finally {
+     setIsLoading(false);
+   }
+   ```
+3. **Backend (Express)**: Return structured responses — never throw unhandled rejections.
 4. Inject ALL dependencies via constructor — never instantiate services inside business logic.
-5. Validate all input at the presentation/API boundary — never in use cases or domain.
+5. Validate all input at the API boundary (controller/route level).
 6. Handle all error cases explicitly — no silent failures.
 7. Write self-documenting code — names reveal intent.
 

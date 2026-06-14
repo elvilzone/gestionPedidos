@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, RefreshCw, TrendingUp, Package } from 'lucide-react'
 import TarjetaPedido from '../components/TarjetaPedido.jsx'
 import { getPedidos, getResumenSemana } from '../lib/api.js'
+import { dbLocal } from '../lib/sync.js'
 import { formatearPrecio } from '../lib/formato.js'
 
 export default function Inicio() {
@@ -20,10 +21,17 @@ export default function Inicio() {
         getPedidos(),
         getResumenSemana(),
       ])
-      setPedidos(resPedidos.data)
+      
+      // Ordenar pedidos activos por fecha de entrega ascendente (los más urgentes primero)
+      const pedidosOrdenados = (resPedidos.data || []).sort((a, b) => {
+        return new Date(a.fecha_entrega) - new Date(b.fecha_entrega)
+      })
+
+      setPedidos(pedidosOrdenados)
       setResumen(resResumen.data)
     } catch (err) {
-      setError('No se pudo conectar con el servidor. ¿Está ejecutándose el backend?')
+      console.error(err)
+      setError('Error al cargar los datos locales.')
     } finally {
       setCargando(false)
     }
@@ -39,7 +47,7 @@ export default function Inicio() {
       <header className="nav-header" style={{ justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#D4537E', margin: 0 }}>
-            🎂 TortasBO
+            🎂 Pabel's Repostería
           </h1>
           <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
             Gestión de pedidos

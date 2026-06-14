@@ -1,7 +1,7 @@
 {
-  "name": "TortasBO — Gestión de Pedidos",
-  "short_name": "TortasBO",
-  "description": "App de gestión de pedidos para pastelería en Potosí, Bolivia",
+  "name": "Pabel's Repostería",
+  "short_name": "Pabel's",
+  "description": "App de gestión de pedidos para repostería",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFF5F8",

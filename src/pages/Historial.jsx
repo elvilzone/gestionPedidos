@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Search, ChevronRight } from 'lucide-react'
 import { getHistorial } from '../lib/api.js'
+import { dbLocal } from '../lib/sync.js'
 import { formatearPrecio, formatearFecha, etiquetaTipo, formatearNumeroPedido } from '../lib/formato.js'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -18,14 +19,22 @@ export default function Historial() {
   const [mes, setMes] = useState(format(hoy, 'yyyy-MM'))
 
   useEffect(() => {
-    setCargando(true)
-    setError(null)
-    getHistorial({ mes })
-      .then(res => setPedidos(res.data))
-      .catch(() => setError('No se pudo cargar el historial'))
-      .finally(() => setCargando(false))
+    const cargarHistorial = async () => {
+      setCargando(true);
+      setError(null);
+      try {
+        const res = await getHistorial({ mes });
+        setPedidos(res.data);
+      } catch (err) {
+        console.error(err);
+        setError('No se pudo cargar el historial');
+      } finally {
+        setCargando(false);
+      }
+    };
+    
+    cargarHistorial();
   }, [mes])
-
   // Filtrar por búsqueda de nombre
   const pedidosFiltrados = pedidos.filter(p =>
     p.nombre_cliente.toLowerCase().includes(busqueda.toLowerCase())
