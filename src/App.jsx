@@ -50,9 +50,6 @@ function AppLayout({ children }) {
         {children}
       </main>
 
-      {/* Badge de estado de red/sync */}
-      <NetworkBadge />
-
       {/* Navegación Móvil (Oculto en escritorio y en formularios) */}
       {!esFormulario && (
         <nav className="bottom-nav">
